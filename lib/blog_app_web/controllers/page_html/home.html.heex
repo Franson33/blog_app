@@ -1,8 +1,14 @@
-<h1>Articles</h1>
-<ul>
+<h1 class="text-4x1 font-bold mb-6 text-primary">Articles</h1>
+<ul class="space-y-3">
   <%= for art <- @articles do %>
     <li>
-      <a href={~p"/articles/#{art.slug}"}>{art.title}</a>
+      <a
+        href={~p"/articles/#{art.slug}"}
+        class="block p-4 rounded-lg border border-base-300 bg-base-100 hover:bg-base-200 hover:text-primary font-medium
+    transition"
+      >
+        {art.title}
+      </a>
     </li>
   <% end %>
 </ul>
