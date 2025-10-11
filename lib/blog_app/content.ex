@@ -8,6 +8,30 @@ defmodule BlogApp.Content do
   @base_url "https://raw.githubusercontent.com/Franson33/articles/main"
   @manifest_url "#{@base_url}/manifest.json"
 
+  # MDEx parsing options
+  @mdex_opts [
+    extension: [
+      strikethrough: true,
+      tagfilter: true,
+      table: true,
+      autolink: true,
+      tasklist: true,
+      footnotes: true,
+      shortcodes: true  # Enables emoji like :smile:
+    ],
+    parse: [
+      smart: true,
+      relaxed_tasklist_matching: true
+    ],
+    render: [
+      unsafe_: false,  # Sanitizes HTML for security
+      github_pre_lang: true  # Adds language class to code blocks
+    ],
+    syntax_highlight: [
+      formatter: {:html_inline, theme: "github_dark"}
+    ]
+  ]
+
   def fetch_article(slug) do
     slug
     |> raw_url()
@@ -34,9 +58,9 @@ defmodule BlogApp.Content do
   defp parse_markdown({:error, reason}), do: {:error, reason}
 
   defp do_parse(md) do
-    case Earmark.as_html(md) do
-      {:ok, html, _} -> {:ok, html}
-      {:error, _msgs, _} -> {:error, :invalid_markdown}
+    case MDEx.to_html(md, @mdex_opts) do
+      {:ok, html} -> {:ok, html}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -55,7 +79,7 @@ defmodule BlogApp.Content do
   defp handle_response({:error, reason}), do: {:error, {:network_failure, reason}}
 
   defp decode_json(json) do
-    case Jason.decode(json) do
+    case Jason.decode(json, keys: :atoms) do
       {:ok, articles} -> {:ok, articles}
       {:error, _} -> {:error, :invalid_json}
     end

@@ -64,7 +64,7 @@ defmodule BlogApp.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:httpoison, "~> 2.0"},
-      {:earmark, "~> 1.4"}
+      {:mdex, "~> 0.9"}
     ]
   end
 

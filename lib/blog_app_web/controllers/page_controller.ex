@@ -3,6 +3,14 @@ defmodule BlogAppWeb.PageController do
   alias BlogApp.Content
 
   def home(conn, _params) do
-    render(conn, :home, articles: Content.list_articles())
+    case Content.list_articles() do
+      {:ok, articles} ->
+        render(conn, :home, articles: articles)
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Could not load articles")
+        |> render(:home, articles: [])
+    end
   end
 end
