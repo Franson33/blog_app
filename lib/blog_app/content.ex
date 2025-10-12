@@ -48,8 +48,8 @@ defmodule BlogApp.Content do
 
   defp fetch_markdown(url) do
     case HTTPoison.get(url) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: md}} -> {:ok, md}
-      {:ok, %HTTPoison.Response{status_code: code}} -> {:error, {:http_error, code}}
+      {:ok, %Response{status_code: 200, body: md}} -> {:ok, md}
+      {:ok, %Response{status_code: code}} -> {:error, {:http_error, code}}
       {:error, reason} -> {:error, {:network_failure, reason}}
     end
   end

@@ -1,14 +1,61 @@
-<h1 class="text-4x1 font-bold mb-6 text-primary">Articles</h1>
-<ul class="space-y-3">
-  <%= for art <- @articles do %>
-    <li>
-      <a
+<div class="max-w-4xl mx-auto">
+  <h1 
+    class="
+      text-6xl font-bold mb-8 
+      bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent
+    "
+  >
+    Articles
+  </h1>
+
+  <div class="space-y-4">
+    <%= for art <- @articles do %>
+      <a 
         href={~p"/articles/#{art.slug}"}
-        class="block p-4 rounded-lg border border-base-300 bg-base-100 hover:bg-base-200 hover:text-primary font-medium
-    transition"
+        class="
+          group relative overflow-hidden rounded-2xl 
+          bg-gradient-to-br from-primary/10 to-secondary/15 
+          p-8 shadow-xl transition-all block
+          hover:scale-[1.01] hover:-translate-x-1 hover:shadow-2xl
+        "
       >
-        {art.title}
+        <div class="relative z-10">
+          <h2 
+            class="
+              text-2xl font-bold mb-3 text-primary
+              bg-gradient-to-r from-primary to-accent/70
+              bg-clip-text text-transparent
+            "
+          >
+            {art.title}
+          </h2>
+
+          <div class="text-sm opacity-70">~D[{art.date}]</div>
+
+          <div class="flex flex-wrap gap-2 mt-4">
+            <%= for tag <- art.tags do %>
+              <span 
+                class="
+                  px-3 py-1.5 rounded-full text-sm font-medium 
+                  bg-gradient-to-r from-primary/15 to-secondary/15 
+                "
+              >
+                {tag}
+              </span>
+            <% end %>
+          </div>
+
+        </div>
+
+        <div 
+          class="
+            absolute -right-10 -bottom-10 w-40 h-40 
+            bg-gradient-to-br from-primary to-secondary 
+            opacity-10 rounded-full blur-3xl 
+            group-hover:scale-150 transition-transform duration-500
+          "
+        ></div>
       </a>
-    </li>
-  <% end %>
-</ul>
+    <% end %>
+  </div>
+</div>
