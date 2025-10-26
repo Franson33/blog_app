@@ -64,7 +64,8 @@ defmodule BlogApp.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:httpoison, "~> 2.0"},
-      {:mdex, "~> 0.9"}
+      {:mdex, "~> 0.9"},
+      {:yaml_front_matter, "~> 1.0"}
     ]
   end
 

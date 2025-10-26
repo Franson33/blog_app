@@ -17,15 +17,18 @@ defmodule BlogApp.Content do
       autolink: true,
       tasklist: true,
       footnotes: true,
-      shortcodes: true  # Enables emoji like :smile:
+      # Enables emoji like :smile:
+      shortcodes: true
     ],
     parse: [
       smart: true,
       relaxed_tasklist_matching: true
     ],
     render: [
-      unsafe_: false,  # Sanitizes HTML for security
-      github_pre_lang: true  # Adds language class to code blocks
+      # Sanitizes HTML for security
+      unsafe_: false,
+      # Adds language class to code blocks
+      github_pre_lang: true
     ],
     syntax_highlight: [
       formatter: {:html_inline, theme: "github_dark"}
@@ -37,6 +40,7 @@ defmodule BlogApp.Content do
     |> raw_url()
     |> fetch_markdown()
     |> parse_markdown()
+    |> parse_body()
   end
 
   def list_articles do
@@ -54,22 +58,23 @@ defmodule BlogApp.Content do
     end
   end
 
-  defp parse_markdown({:ok, md}), do: do_parse(md)
-  defp parse_markdown({:error, reason}), do: {:error, reason}
+  defp parse_markdown({:ok, md}) do
+    case YamlFrontMatter.parse(md) do
+      {:ok, metadata, body_md} ->
+        {:ok, {metadata |> keys_to_atoms(), body_md}}
 
-  defp do_parse(md) do
-    md
-    |> strip_frontmatter()
-    |> parse_to_html()
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
-  defp strip_frontmatter(md) do
-    Regex.replace(~r/^---\n.*?\n---\n/s, md, "")
+  defp parse_markdown({:error, reason}) do
+    {:error, reason}
   end
 
-  defp parse_to_html(md) do
-    case MDEx.to_html(md, @mdex_opts) do
-      {:ok, html} -> {:ok, html}
+  defp parse_body({:ok, {metadata, body_md}}) do
+    case MDEx.to_html(body_md, @mdex_opts) do
+      {:ok, html} -> {:ok, %{html: html, metadata: metadata}}
       {:error, reason} -> {:error, reason}
     end
   end
@@ -93,5 +98,9 @@ defmodule BlogApp.Content do
       {:ok, articles} -> {:ok, articles}
       {:error, _} -> {:error, :invalid_json}
     end
+  end
+
+  defp keys_to_atoms(map) do
+    Map.new(map, fn {k, v} -> {String.to_atom(k), v} end)
   end
 end
