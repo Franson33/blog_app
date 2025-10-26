@@ -58,6 +58,16 @@ defmodule BlogApp.Content do
   defp parse_markdown({:error, reason}), do: {:error, reason}
 
   defp do_parse(md) do
+    md
+    |> strip_frontmatter()
+    |> parse_to_html()
+  end
+
+  defp strip_frontmatter(md) do
+    Regex.replace(~r/^---\n.*?\n---\n/s, md, "")
+  end
+
+  defp parse_to_html(md) do
     case MDEx.to_html(md, @mdex_opts) do
       {:ok, html} -> {:ok, html}
       {:error, reason} -> {:error, reason}
