@@ -4,20 +4,20 @@
     class="
       inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm 
       border border-base-300 hover:border-primary 
-      hover:bg-primary/5 transition-all mb-8
+      hover:bg-primary/5 transition-all mb-6 sm:mb-8
     "
   >
     ← Back to Articles
   </a>
 
   <h1 class="
-      text-5xl font-bold mb-4 
+      text-3xl sm:text-4xl md:text-5xl font-bold 
       bg-gradient-to-r from-primary to-accent/70 
       bg-clip-text text-transparent">
     {@article.title}
   </h1>
 
-  <p class="text-m opacity-70 my-8">{@article.date}</p>
+  <p class="text-m opacity-70 my-6 sm:my-8">{@article.date}</p>
 
   <article class="prose prose-lg prose-slate dark:prose-invert max-w-none">
     {raw(@article_html)}
