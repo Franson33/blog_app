@@ -13,6 +13,8 @@ defmodule BlogApp.Application do
       {Phoenix.PubSub, name: BlogApp.PubSub},
       # Start a worker by calling: BlogApp.Worker.start_link(arg)
       # {BlogApp.Worker, arg},
+      # Keep the app alive in production (prevents Render free tier spin-down)
+      keep_alive_child_spec(),
       # Start to serve requests, typically the last entry
       BlogAppWeb.Endpoint
     ]
@@ -29,5 +31,15 @@ defmodule BlogApp.Application do
   def config_change(changed, _new, removed) do
     BlogAppWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp keep_alive_child_spec do
+    case Application.get_env(:blog_app, :env) do
+      :prod ->
+        {BlogApp.KeepAlive, []}
+
+      _other_env ->
+        %{id: :keep_alive_noop, start: {Task, :start_link, [fn -> :ok end]}, restart: :temporary}
+    end
   end
 end
