@@ -1,0 +1,87 @@
+name: Release and deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version type to bump"
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+        default: patch
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Bump version
+        id: bump
+        run: |
+          chmod +x .github/scripts/bump_version.sh
+          .github/scripts/bump_version.sh ${{ inputs.bump }}
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [[ -z "$PREVIOUS_TAG" ]]; then
+            echo "❌ Error: Could not find any release tags!"
+            exit 1
+          fi
+
+          echo "Generating changelog since $PREVIOUS_TAG"
+          CHANGELOG=$(git log ${PREVIOUS_TAG}..develop --pretty=format:"- %s (%h)" --reverse)
+
+          if [[ -z "$CHANGELOG" ]]; then
+            echo "⚠️ Warning: No new commits since $PREVIOUS_TAG"
+            CHANGELOG="No changes"
+          fi          
+
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mix.exs
+          git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }}"
+          git push origin develop
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.bump.outputs.new_version }}
+          name: Release v${{ steps.bump.outputs.new_version }}
+          body: |
+            ## What's New in v${{ steps.bump.outputs.new_version }}
+
+            ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+
+      - name: Merge develop into main
+        run: |
+          git checkout main 
+          git merge develop --ff-only 
+          git push origin main
