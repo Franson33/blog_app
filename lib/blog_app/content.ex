@@ -31,7 +31,7 @@ defmodule BlogApp.Content do
       github_pre_lang: true
     ],
     syntax_highlight: [
-      formatter: {:html_inline, theme: "github_dark"}
+      formatter: {:html_inline, theme: "molokai"}
     ]
   ]
 
