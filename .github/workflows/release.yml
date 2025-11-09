@@ -33,7 +33,6 @@ jobs:
       - name: Bump version
         id: bump
         run: |
-          chmod +x .github/scripts/bump_version.sh
           .github/scripts/bump_version.sh ${{ inputs.bump }}
 
       - name: Generate changelog
